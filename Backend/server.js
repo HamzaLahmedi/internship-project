@@ -1,21 +1,22 @@
-const express=require('express')
-require('dotenv').config()
+const express = require('express');
+const cors = require('cors');
 
-const app=express()
-const authRouter=require('./routes/auth')
-const connectDB=require('./config/connectDB')
+require('dotenv').config();
 
-const port=process.env.PORT || 5000
+const app = express();
+const connectDB = require('./config/connectDB');
+const router = require('./routes/auth');
 
+const port = process.env.PORT || 5000;
 
+// Connect with the database
+connectDB();
 
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-// connect with data base
-connectDB()
+// Routes
+app.use('/api/auth', router);
 
-//midlleware
-app.use(express.json())
-
-app.use('/api/auth',authRouter)
-
-app.listen(port,()=>console.log(`server running on port ${port}`))
+app.listen(port, () => console.log(`Server running on port ${port}`));

@@ -1,11 +1,12 @@
 const User = require('../models/User')
 const brcypt=require('bcrypt')
 const jwt=require('jsonwebtoken')
-
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 
 exports.signUp = async (req, res) => {
-    const { firstName, lastName, email, password , cin} = req.body;
+    const { firstName, lastName, email, password,cin } = req.body;
     try {
         // check user exist or not
         const checkuser=await User.findOne({email})
@@ -16,8 +17,9 @@ exports.signUp = async (req, res) => {
         firstName,
         lastName,
         email,
-        password,
         cin,
+        password,
+        
       });
       user.password=await brcypt.hash(password,10)
       await user.save();
@@ -116,3 +118,73 @@ exports.updateUser=async(req,res)=>{
         res.status(500).send("server error");
     }
 }
+
+
+
+
+
+
+exports.forgetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+
+      const user = await User.findOne({ email });
+
+      if (!user) {
+          res.status(404).json({
+              message: `User with email ${email} was not found!`
+          });
+      } else {
+          const token = crypto.randomBytes(2).toString('hex');
+
+          // const hashedToken = await bcrypt.hash(token, 10);
+
+          await user.updateOne({
+              resetPasswordToken: token,
+              resetPasswordExpires: Date.now() + 3600000
+          });
+
+          const transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                  user: process.env.EMAIL,
+                  pass: process.env.PASSWORD
+              }
+          });
+
+          const mailOptions = {
+              from: process.env.EMAIL,
+              to: email,
+              subject: 'Link To Reset Password',
+              html: `<p>Hello,</p>
+              <p>We received a request to reset the password for your account. Please click the button below to reset your password:</p>
+              <a href="${token}" style="background-color:#3498db;border-radius:28px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:17px;line-height:50px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;">Reset Password</a>
+              <p>If you did not request a password reset, please ignore this message.</p>
+              <p>Your reset token is : ${token}.</p>
+              <p>Best regards,</p>
+              <p>Your Sentinelle Team</p>
+              <p><a href="https://www.sentinelle.com">https://www.sentinelle.com</a></p>
+              `
+          };
+
+          transporter.sendMail(mailOptions, (err, response) => {
+              if (err) {
+                  console.error('there was an error: ', err);
+              } else {
+                  console.log('here is the res: ', response);
+                  res.status(200).json({ message: 'recovery email sent', token: token });
+              }
+          });
+      }
+  } catch (error) {
+      res.status(500).json({
+          message: error.message || "Something went wrong while retrieving user."
+      });
+  }
+};
+
+
+
+
+
