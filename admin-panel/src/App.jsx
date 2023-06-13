@@ -6,6 +6,7 @@ import Read from './components/Read';
 import Create from './components/Create';
  
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LogIn from './LogIn';
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Route path="/create" element={<Create />} />
         <Route path="/update/:id" element={<Update />} />
         <Route path="/read/:id" element={<Read />} />
+        <Route path="/login" element={<LogIn />} />
+
       </Routes>
     </div>
   );

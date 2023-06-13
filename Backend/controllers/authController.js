@@ -61,6 +61,41 @@ exports.signUp = async (req, res) => {
     }
   }
 
+  exports.logInAdmin = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ errors: [{ msg: "Bad credentials" }] });
+      }
+  
+      const isMatch = await brcypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ errors: [{ msg: "Bad credentials" }] });
+      }
+  
+      // Check user role
+      if (user.role != "admin") {
+        return res.status(401).json({ errors: [{ msg: "Not authorized" }] });
+      }
+  
+      // Generate token
+      const payload = {
+        id: user._id
+      };
+      const token = jwt.sign(payload, process.env.secret_key, { expiresIn: '3d' });
+  
+      res.status(200).json({ user, msg: "Logged in successfully", token });
+    } catch (error) {
+      // Handle error
+      console.error(error);
+      res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+    }
+  };
+  
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-const express=require('express')
+/*const express=require('express')
 const { signUp, logIn, current, allUsers, getOneUser, updateUser, deleteUser,forgetPassword, logInAdmin } = require('../controllers/authController')
 const { registerRules,validator, } = require('../middleware/validator')
 const isAuth=require('../middleware/isAuth')
@@ -15,4 +15,4 @@ router.get('/getOneUser/:id',getOneUser)
 router.delete('/deleteUser/:id',deleteUser)
 router.put('/updateUser/:id',updateUser)
 router.post('/forgetPassword',forgetPassword)
-module.exports=router
+module.exports=router*/

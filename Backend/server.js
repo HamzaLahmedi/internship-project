@@ -14,9 +14,18 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
-
+/*app.use(cors({
+    origin: 'http://localhost:3000/',
+    credentials: true
+  }));*/
+  app.use(cors())
+  app.use(express.urlencoded({extended:false}))
+  
 // Routes
-app.use('/api/auth', router);
+const authRouter=require('./routes/auth')
+//const serviceRouter=require('./routes/service')
+
+app.use('/api/auth', authRouter);
+//app.use('/api/service',serviceRouter)
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
